@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-// import api from '../../../config/api';
+import axios from 'axios';
+import api from '../../../config/api';
 import data from '../../../data/data.json';
 
 export interface Bike {
@@ -26,11 +27,17 @@ export interface Bike {
   year: number | null;
 }
 
+interface Count {
+  non: number;
+    stolen: number;
+    proximity: number
+}
 export interface BikeState {
   all: Bike[];
   loading: boolean;
   error: null;
   page: number;
+  count: Count
 }
 // Slice
 const initialState: BikeState = {
@@ -38,6 +45,11 @@ const initialState: BikeState = {
   page: 1,
   loading: false,
   error: null,
+  count: {
+    non: 0,
+    stolen: 0,
+    proximity: 0
+  }
 };
 
 export const bikeSlice = createSlice({
@@ -56,27 +68,28 @@ export const bikeSlice = createSlice({
     setPage: (state, action: PayloadAction<number>) => {
       state.page = action.payload;
     },
+    setCount: (state, action: PayloadAction<Count>) => {
+      state.count = action.payload;
+    },
   },
 });
 
-export const { setList, setLoading, setPage, setError } = bikeSlice.actions;
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+export const { setList, setLoading, setPage, setError, setCount } = bikeSlice.actions;
 
 export const search =
-  () => async (dispatch: (arg0: { payload: Bike[]; type: string }) => any) => {
+  (query: string) => async (dispatch: (arg0: { payload: Bike[] | Count | boolean; type: string }) => any) => {
     try {
-      setLoading(true);
-      // const result = await api.get('/search', { data: { per_page: 10 } });
-      // const result: Bike[] = await apii(1000, data.bikes);
-      await sleep(1000);
-      setLoading(false);
-      dispatch(setList(data.bikes));
+      dispatch(setLoading(true));
+      const resultCount = await api.get('/search/count', { params: { stolenness: 'all', query} });
+      dispatch(setCount(resultCount.data));
 
-      return await new Promise((resolve) => resolve);
+      const result = await api.get('/search', { params: { per_page: 10, query } });
+      dispatch(setLoading(false));
+      dispatch(setList(result.data.bikes));
     } catch (e) {
       return console.error(e);
     }
   };
+
 
 export default bikeSlice.reducer;

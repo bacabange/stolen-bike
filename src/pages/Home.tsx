@@ -1,37 +1,41 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import BikeList from '../components/BikeList/BikeList';
 import Button from '../components/Button/Button';
 import DateInput from '../components/Form/DateInput/DateInput';
 import TextInput from '../components/Form/TextInput/TextInput';
 import Spinner from '../components/Loading/Spinner';
 import Layout from '../Layout';
-import { search } from '../store/features/bikes/bikeSlice';
+import { search} from '../store/features/bikes/bikeSlice';
 import { useAppSelector, useAppDispatch } from '../store/hooks';
 
 const Home: React.FC = () => {
-  const { all, loading } = useAppSelector((state) => state.bikes);
+  const [query, setQuery] = useState<string>('')
+  const { all, loading, count: countState } = useAppSelector((state) => state.bikes);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(search());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    dispatch(search(query));
   }, []);
 
   useEffect(() => {
     console.log('bikes', all);
   }, [all]);
 
+  const handleSearch = () => {
+    dispatch(search(query));
+  }
+
   return (
     <Layout>
       <div className="bg-white col-start-1 col-span-12 lg:col-span-6">
         <main className="mt-8 px-4">
-          {/* Filters */}
           <div className="flex flex-col w-full mb-8">
             {/* form input */}
             <TextInput
               label="Search"
               name="search"
               placeholder="Search for nearby stolen bikes"
-              onChange={(e) => console.log(e.currentTarget)}
+              onChange={(e) => setQuery(e.target.value)}
             />
 
             <div className="flex flex-col md:flex-row md:space-x-2">
@@ -48,93 +52,57 @@ const Home: React.FC = () => {
                 onChange={(e) => console.log(e)}
               />
               <div className="mb-2 ">
-                <Button />
+                <Button onClick={handleSearch} title="Search" />
               </div>
             </div>
           </div>
 
-          {/* Results */}
           <div className="flex flex-col">
-            {/* loading */}
             {loading ? (
               <Spinner />
             ) : (
               <>
                 <div className="my-2">
                   <p className="text-xl">
-                    <span className="font-bold mr-1">4 results</span>
-                    <span className="text-gray-400">for &apos;black&apos;</span>
+                    <span className="font-bold mr-1">{countState.stolen} results</span>
                   </p>
                 </div>
 
-                <ul className="block mb-8 space-y-4">
-                  {/* item */}
-                  {all.map((bike) => (
-                    <article
-                      key={bike.id}
-                      className="p-4 flex flex-row items-center space-x-4 border-gray-200 hover:border-indigo-200 border rounded-lg shadow-md hover:shadow-lg transition-all relative cursor-pointer"
-                    >
-                      <img
-                        src="https://files.bikeindex.org/uploads/Pu/500544/large_bike.jpg"
-                        alt="Bike"
-                        className="flex-none w-32 h-32 object-cover bg-gray-100"
-                      />
-                      {/* item info */}
-                      <div>
-                        <h3 className="text-xl font-bold">
-                          El título de la bicicleta
-                        </h3>
-                        <div className="flex flex-col mb-4 text-sm">
-                          <span className="text-gray-400">13 Aug 2021</span>
-                          <span className="text-gray-400">
-                            Alpine Meadows, Tahoe City, CA - US
-                          </span>
-                        </div>
-                        <div className="flex flex-row space-x-2">
-                          <span className="px-2 py-1 text-sm text-indigo-400 bg-indigo-100">
-                            Red
-                          </span>
-                          <span className="px-2 py-1 text-sm text-indigo-400 bg-indigo-100">
-                            Black
-                          </span>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </ul>
+                <BikeList bikes={all} />
+
+                <div className="flex flex-row justify-center items-center space-x-1 mt-4 mb-8">
+                  <a href="#" className="flex items-center px-4 py-2 text-gray-200">
+                    &laquo;
+                  </a>
+
+                  <a
+                    href="#"
+                    className="px-4 py-2 text-white bg-indigo-500 rounded-md hover:bg-indigo-600"
+                  >
+                    1
+                  </a>
+                  <a
+                    href="#"
+                    className="flex items-center px-4 py-2 text-gray-400 hover:bg-indigo-100 hover:text-indigo-500 rounded-md"
+                  >
+                    2
+                  </a>
+                  <a
+                    href="#"
+                    className="flex items-center px-4 py-2 text-gray-400 hover:bg-indigo-100 hover:text-indigo-500 rounded-md"
+                  >
+                    3
+                  </a>
+                  <a
+                    href="#"
+                    className="flex items-center px-4 py-2 text-gray-400 hover:bg-indigo-100 hover:text-indigo-500 rounded-md"
+                  >
+                    &raquo;
+                  </a>
+                </div>
               </>
             )}
 
-            <div className="flex flex-row justify-center items-center space-x-1 mt-4 mb-8">
-              <a href="#" className="flex items-center px-4 py-2 text-gray-200">
-                &laquo;
-              </a>
-
-              <a
-                href="#"
-                className="px-4 py-2 text-white bg-indigo-500 rounded-md hover:bg-indigo-600"
-              >
-                1
-              </a>
-              <a
-                href="#"
-                className="flex items-center px-4 py-2 text-gray-400 hover:bg-indigo-100 hover:text-indigo-500 rounded-md"
-              >
-                2
-              </a>
-              <a
-                href="#"
-                className="flex items-center px-4 py-2 text-gray-400 hover:bg-indigo-100 hover:text-indigo-500 rounded-md"
-              >
-                3
-              </a>
-              <a
-                href="#"
-                className="flex items-center px-4 py-2 text-gray-400 hover:bg-indigo-100 hover:text-indigo-500 rounded-md"
-              >
-                &raquo;
-              </a>
-            </div>
           </div>
         </main>
       </div>
