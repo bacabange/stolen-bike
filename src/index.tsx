@@ -5,11 +5,10 @@ import { Provider } from 'react-redux';
 import reportWebVitals from './reportWebVitals';
 import Home from './pages/Home';
 import store from './store';
-
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <Home />
+        <Home />
     </Provider>
   </React.StrictMode>,
   document.getElementById('root'),
