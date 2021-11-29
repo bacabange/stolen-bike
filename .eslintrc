@@ -46,6 +46,11 @@
         }
       }
     ],
-    "jsx-a11y/anchor-is-valid": "off"
+    "jsx-a11y/anchor-is-valid": "off",
+    "no-console": "off",
+    "no-param-reassign": ["error", { "props": false }],
+    "import/no-named-as-default": 0,
+    "no-implied-eval": "off",
+    "@typescript-eslint/no-implied-eval": "off"
   }
 }
